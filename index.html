@@ -1,0 +1,2440 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NotesHub - Smart Notes Management</title>
+    <meta name="description" content="NotesHub is a modern notes management application. Create, edit, and organize your notes with a beautiful, responsive interface.">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
+    
+    <!-- Google Fonts - Figtree (same as Xtract template) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Particles.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+    
+    <style>
+        /* CSS Variables - Same color scheme as Xtract template */
+        :root {
+            --color-black: rgb(0, 0, 0);
+            --color-purple-primary: rgb(129, 74, 200);
+            --color-purple-light: rgb(223, 122, 254);
+            --color-dark-overlay: rgba(13, 13, 13, 0.8);
+            --color-white: rgb(255, 255, 255);
+            --color-white-5: rgba(255, 255, 255, 0.05);
+            --color-gray-light: rgb(204, 204, 204);
+            --color-dark-card: rgb(34, 34, 34);
+            --color-white-90: rgba(255, 255, 255, 0.9);
+            --color-white-75: rgba(255, 255, 255, 0.75);
+            --color-danger: #ef4444;
+            --color-success: #22c55e;
+            --color-warning: #f59e0b;
+            --color-info: #3b82f6;
+            --border-radius: 16px;
+            --border-radius-sm: 8px;
+            --transition: all 0.3s ease;
+            /* Note Colors */
+            --note-purple: rgb(129, 74, 200);
+            --note-blue: rgb(59, 130, 246);
+            --note-green: rgb(34, 197, 94);
+            --note-orange: rgb(249, 115, 22);
+            --note-pink: rgb(236, 72, 153);
+            --note-teal: rgb(20, 184, 166);
+        }
+
+        /* Reset & Base Styles */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Figtree', sans-serif;
+            background: var(--color-black);
+            color: var(--color-white);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Background Container - Same as Xtract framer-134z6np-container */
+        .bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        /* Particles Container */
+        #tsparticles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.5;
+            z-index: 0;
+        }
+
+        /* Animated Gradient Circles - Same as Xtract framer-v5tokv */
+        .bg-circles {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: blur(10px);
+            opacity: 0.6;
+            z-index: 1;
+        }
+
+        /* Big Circle - Same as Xtract framer-q5ecxp */
+        .big-circle {
+            width: 406px;
+            height: 406px;
+            border-radius: 50%;
+            background: linear-gradient(229deg, #df7afe 13%, rgba(201, 110, 240, 0) 35%, rgba(164, 92, 219, 0) 64%, rgb(129, 74, 200) 88%);
+            animation: rotateCircle 20s linear infinite;
+        }
+
+        /* Small Circle - Same as Xtract framer-1mwerlq */
+        .small-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: linear-gradient(141deg, #df7afe 13%, rgba(201, 110, 240, 0) 35%, rgba(164, 92, 219, 0) 64%, rgb(129, 74, 200) 88%);
+            animation: rotateCircleReverse 15s linear infinite;
+            z-index: 1;
+        }
+
+        /* Void Circle - Center dark circle like Xtract framer-1wt1rzf */
+        .void-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgb(0, 0, 0);
+            z-index: 2;
+        }
+
+        @keyframes rotateCircle {
+            0% {
+                transform: rotate(0deg) scale(1);
+            }
+            50% {
+                transform: rotate(180deg) scale(1.1);
+            }
+            100% {
+                transform: rotate(360deg) scale(1);
+            }
+        }
+
+        @keyframes rotateCircleReverse {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg) scale(1);
+            }
+            50% {
+                transform: translate(-50%, -50%) rotate(-180deg) scale(0.9);
+            }
+            100% {
+                transform: translate(-50%, -50%) rotate(-360deg) scale(1);
+            }
+        }
+
+        /* Pulse animation for extra glow effect */
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 0.6;
+                filter: blur(10px);
+            }
+            50% {
+                opacity: 0.8;
+                filter: blur(15px);
+            }
+        }
+
+        .bg-circles {
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        /* Preloader Styles - Same as Xtract template */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--color-black);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .preloader-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .preloader-logo-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--color-purple-primary), var(--color-purple-light));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse-icon 2s ease-in-out infinite;
+            color: white;
+        }
+
+        .preloader-logo-icon svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .preloader-logo-text {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--color-white), var(--color-purple-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Animated Circles for Preloader */
+        .preloader-circles {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin-bottom: 30px;
+        }
+
+        .preloader-circle {
+            position: absolute;
+            border-radius: 50%;
+            border: 3px solid transparent;
+        }
+
+        .preloader-circle-1 {
+            width: 120px;
+            height: 120px;
+            border-top-color: var(--color-purple-light);
+            border-right-color: var(--color-purple-light);
+            animation: spin 1.5s linear infinite;
+        }
+
+        .preloader-circle-2 {
+            width: 90px;
+            height: 90px;
+            top: 15px;
+            left: 15px;
+            border-bottom-color: var(--color-purple-primary);
+            border-left-color: var(--color-purple-primary);
+            animation: spin-reverse 1.2s linear infinite;
+        }
+
+        .preloader-circle-3 {
+            width: 60px;
+            height: 60px;
+            top: 30px;
+            left: 30px;
+            border-top-color: var(--color-purple-light);
+            border-right-color: var(--color-purple-primary);
+            animation: spin 0.9s linear infinite;
+        }
+
+        /* Center Glow */
+        .preloader-glow {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            top: 40px;
+            left: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-purple-primary), var(--color-purple-light));
+            filter: blur(8px);
+            animation: glow-pulse 1.5s ease-in-out infinite;
+        }
+
+        /* Loading Text */
+        .preloader-text {
+            font-size: 14px;
+            color: var(--color-white-75);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            animation: fadeInUp 0.8s ease forwards;
+            animation-delay: 0.3s;
+            opacity: 0;
+        }
+
+        .preloader-dots {
+            display: inline-flex;
+            gap: 4px;
+            margin-left: 8px;
+        }
+
+        .preloader-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--color-purple-light);
+            border-radius: 50%;
+            animation: dot-bounce 1.4s ease-in-out infinite;
+        }
+
+        .preloader-dot:nth-child(1) { animation-delay: 0s; }
+        .preloader-dot:nth-child(2) { animation-delay: 0.2s; }
+        .preloader-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        /* Progress Bar */
+        .preloader-progress {
+            width: 200px;
+            height: 3px;
+            background: var(--color-white-5);
+            border-radius: 3px;
+            margin-top: 24px;
+            overflow: hidden;
+        }
+
+        .preloader-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--color-purple-primary), var(--color-purple-light));
+            border-radius: 3px;
+            animation: progress 2s ease-in-out forwards;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes spin-reverse {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(-360deg); }
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% { 
+                opacity: 0.5; 
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 1; 
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes pulse-icon {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(129, 74, 200, 0.5);
+            }
+            50% { 
+                box-shadow: 0 0 40px rgba(223, 122, 254, 0.8);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes dot-bounce {
+            0%, 80%, 100% {
+                transform: translateY(0);
+                opacity: 0.5;
+            }
+            40% {
+                transform: translateY(-8px);
+                opacity: 1;
+            }
+        }
+
+        @keyframes progress {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+
+        /* Page Content Animation */
+        .page-content {
+            opacity: 0;
+            animation: pageReveal 0.8s ease forwards;
+            animation-delay: 2.2s;
+        }
+
+        @keyframes pageReveal {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Header */
+        header {
+            padding: 24px 0;
+            border-bottom: 1px solid var(--color-white-5);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--color-purple-primary), var(--color-purple-light));
+            border-radius: var(--border-radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-white);
+            background: linear-gradient(135deg, var(--color-white), var(--color-purple-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .notes-count {
+            background: var(--color-dark-card);
+            border: 1px solid var(--color-white-5);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 14px;
+            color: var(--color-white-75);
+        }
+
+        .notes-count span {
+            color: var(--color-purple-light);
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Main Content */
+        main {
+            padding: 48px 0;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--color-white-5);
+            border: 1px solid rgba(129, 74, 200, 0.3);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 14px;
+            color: var(--color-purple-light);
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 900;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--color-white), var(--color-gray-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: var(--color-white-75);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Note Input Section - Crystal Theme */
+        .note-input-section {
+            background: linear-gradient(135deg, rgba(129, 74, 200, 0.15) 0%, rgba(223, 122, 254, 0.08) 100%, rgba(255, 255, 255, 0.05) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: var(--border-radius);
+            padding: 28px;
+            margin-bottom: 48px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .note-input-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        }
+
+        .note-input-section::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 20%, rgba(129, 74, 200, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .input-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .input-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-white-90);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .note-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .note-title-input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius-sm);
+            color: var(--color-white);
+            font-family: 'Figtree', sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+            z-index: 1;
+        }
+
+        .note-title-input:focus {
+            outline: none;
+            border-color: rgba(129, 74, 200, 0.5);
+            box-shadow: 0 0 0 3px rgba(129, 74, 200, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .note-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 16px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius-sm);
+            color: var(--color-white);
+            font-family: 'Figtree', sans-serif;
+            font-size: 16px;
+            resize: vertical;
+            transition: var(--transition);
+            position: relative;
+            z-index: 1;
+        }
+
+        .note-textarea:focus {
+            outline: none;
+            border-color: rgba(129, 74, 200, 0.5);
+            box-shadow: 0 0 0 3px rgba(129, 74, 200, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .note-textarea::placeholder,
+        .note-title-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .char-count {
+            font-size: 14px;
+            color: var(--color-white-75);
+        }
+
+        /* Form Options Row */
+        .form-options {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        /* Color Picker */
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-picker label {
+            font-size: 14px;
+            color: var(--color-white-75);
+        }
+
+        .color-options {
+            display: flex;
+            gap: 6px;
+        }
+
+        .color-option {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .color-option:hover {
+            transform: scale(1.15);
+        }
+
+        .color-option.selected {
+            border-color: var(--color-white);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+        }
+
+        .color-option[data-color="purple"] { background: var(--note-purple); }
+        .color-option[data-color="blue"] { background: var(--note-blue); }
+        .color-option[data-color="green"] { background: var(--note-green); }
+        .color-option[data-color="orange"] { background: var(--note-orange); }
+        .color-option[data-color="pink"] { background: var(--note-pink); }
+        .color-option[data-color="teal"] { background: var(--note-teal); }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: var(--border-radius-sm);
+            font-family: 'Figtree', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-purple-primary), var(--color-purple-light));
+            color: var(--color-white);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(129, 74, 200, 0.3);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(129, 74, 200, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: var(--color-white);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(129, 74, 200, 0.5);
+            box-shadow: 0 4px 15px rgba(129, 74, 200, 0.2);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: var(--color-danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.9);
+            color: var(--color-white);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        /* Error Message */
+        .error-message {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: rgba(239, 68, 68, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: var(--border-radius-sm);
+            color: var(--color-danger);
+            font-size: 14px;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .error-icon {
+            width: 20px;
+            height: 20px;
+            background: var(--color-danger);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .error-message.show {
+            display: flex;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Notes Section */
+        .notes-section {
+            margin-bottom: 48px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .section-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-white);
+        }
+
+        /* Notes Controls - Crystal Theme */
+        .notes-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+            padding: 18px 20px;
+            background: linear-gradient(135deg, rgba(129, 74, 200, 0.15) 0%, rgba(223, 122, 254, 0.08) 100%, rgba(255, 255, 255, 0.05) 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--border-radius);
+            box-shadow: 
+                0 4px 24px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            position: relative;
+        }
+
+        .notes-controls::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 20px;
+            right: 20px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        }
+
+        .controls-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .controls-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Sort Dropdown */
+        .sort-dropdown {
+            position: relative;
+        }
+
+        .sort-select {
+            appearance: none;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--color-white-5);
+            border-radius: var(--border-radius-sm);
+            padding: 10px 36px 10px 14px;
+            color: var(--color-white);
+            font-family: 'Figtree', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .sort-select:focus {
+            outline: none;
+            border-color: var(--color-purple-primary);
+        }
+
+        .sort-select option {
+            background: var(--color-dark-card);
+            color: var(--color-white);
+        }
+
+        .sort-dropdown::after {
+            content: '▼';
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 10px;
+            color: var(--color-white-75);
+            pointer-events: none;
+        }
+
+        /* Filter Buttons */
+        .filter-btn {
+            padding: 8px 14px;
+            background: transparent;
+            border: 1px solid var(--color-white-5);
+            border-radius: var(--border-radius-sm);
+            color: var(--color-white-75);
+            font-family: 'Figtree', sans-serif;
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--color-purple-primary);
+            color: var(--color-white);
+        }
+
+        .filter-btn.active {
+            background: var(--color-purple-primary);
+            border-color: var(--color-purple-primary);
+            color: var(--color-white);
+        }
+
+        /* Export Button */
+        .export-btn {
+            padding: 10px 16px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: var(--border-radius-sm);
+            color: var(--color-info);
+            font-family: 'Figtree', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .export-btn:hover {
+            background: var(--color-info);
+            color: white;
+        }
+
+        /* Stats Bar - Crystal Theme */
+        .stats-bar {
+            display: flex;
+            gap: 32px;
+            padding: 20px 28px;
+            background: linear-gradient(135deg, rgba(129, 74, 200, 0.15) 0%, rgba(223, 122, 254, 0.08) 100%, rgba(255, 255, 255, 0.05) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--border-radius);
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            box-shadow: 
+                0 8px 32px rgba(129, 74, 200, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 0 20px rgba(129, 74, 200, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(223, 122, 254, 0.5), rgba(255, 255, 255, 0.3), rgba(223, 122, 254, 0.5), transparent);
+        }
+
+        .stats-bar::after {
+            content: '';
+            position: absolute;
+            top: -100%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: radial-gradient(ellipse at center, rgba(223, 122, 254, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-white);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-value.highlight {
+            background: linear-gradient(135deg, var(--color-purple-light), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--color-dark-card);
+            border: 1px solid var(--color-white-5);
+            border-radius: 100px;
+            padding: 8px 16px;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--color-white);
+            font-family: 'Figtree', sans-serif;
+            font-size: 14px;
+        }
+
+        .search-box input:focus {
+            outline: none;
+        }
+
+        .search-box input::placeholder {
+            color: var(--color-white-75);
+        }
+
+        .search-icon {
+            color: var(--color-white-75);
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .search-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Notes Grid */
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        /* Note Card - Crystal Theme */
+        .note-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 4px 24px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .note-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--color-purple-primary), var(--color-purple-light));
+            opacity: 1;
+            transition: var(--transition);
+        }
+
+        .note-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, transparent 100%);
+            pointer-events: none;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        /* Crystal shimmer effect on hover */
+        .note-card .crystal-shine {
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 60%;
+            height: 200%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transform: rotate(25deg);
+            transition: all 0.6s ease;
+            pointer-events: none;
+        }
+
+        .note-card:hover .crystal-shine {
+            left: 150%;
+        }
+
+        /* Note Color Variants */
+        .note-card[data-color="purple"]::before { background: linear-gradient(90deg, var(--note-purple), rgba(129, 74, 200, 0.5)); }
+        .note-card[data-color="blue"]::before { background: linear-gradient(90deg, var(--note-blue), rgba(59, 130, 246, 0.5)); }
+        .note-card[data-color="green"]::before { background: linear-gradient(90deg, var(--note-green), rgba(34, 197, 94, 0.5)); }
+        .note-card[data-color="orange"]::before { background: linear-gradient(90deg, var(--note-orange), rgba(249, 115, 22, 0.5)); }
+        .note-card[data-color="pink"]::before { background: linear-gradient(90deg, var(--note-pink), rgba(236, 72, 153, 0.5)); }
+        .note-card[data-color="teal"]::before { background: linear-gradient(90deg, var(--note-teal), rgba(20, 184, 166, 0.5)); }
+
+        /* Color glow variants */
+        .note-card[data-color="purple"]:hover { box-shadow: 0 12px 40px rgba(129, 74, 200, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1); }
+        .note-card[data-color="blue"]:hover { box-shadow: 0 12px 40px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1); }
+        .note-card[data-color="green"]:hover { box-shadow: 0 12px 40px rgba(34, 197, 94, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1); }
+        .note-card[data-color="orange"]:hover { box-shadow: 0 12px 40px rgba(249, 115, 22, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1); }
+        .note-card[data-color="pink"]:hover { box-shadow: 0 12px 40px rgba(236, 72, 153, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1); }
+        .note-card[data-color="teal"]:hover { box-shadow: 0 12px 40px rgba(20, 184, 166, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1); }
+
+        /* Pinned Note Style - Crystal */
+        .note-card.pinned {
+            border-color: rgba(245, 158, 11, 0.4);
+            box-shadow: 
+                0 8px 32px rgba(245, 158, 11, 0.2),
+                inset 0 0 20px rgba(245, 158, 11, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .note-card.pinned .pin-indicator {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 16px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            z-index: 2;
+        }
+
+        .note-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .note-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .note-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-white);
+            word-break: break-word;
+        }
+
+        .note-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .note-date {
+            font-size: 12px;
+            color: var(--color-white-75);
+            white-space: nowrap;
+        }
+
+        .note-word-count {
+            font-size: 11px;
+            color: var(--color-white-75);
+            opacity: 0.7;
+        }
+
+        .note-content {
+            font-size: 15px;
+            color: var(--color-white-75);
+            line-height: 1.7;
+            margin-bottom: 16px;
+            word-break: break-word;
+            white-space: pre-wrap;
+            max-height: 150px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .note-content::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: linear-gradient(transparent, rgba(34, 34, 34, 0.9));
+            z-index: 1;
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 8px;
+            padding-top: 16px;
+            border-top: 1px solid var(--color-white-5);
+            flex-wrap: wrap;
+        }
+
+        .pin-btn {
+            padding: 8px 12px;
+            background: transparent;
+            border: 1px solid var(--color-white-5);
+            border-radius: var(--border-radius-sm);
+            color: var(--color-white-75);
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .pin-btn:hover {
+            border-color: var(--color-warning);
+            color: var(--color-warning);
+        }
+
+        .pin-btn.pinned {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--color-warning);
+            color: var(--color-warning);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 24px;
+            background: var(--color-dark-card);
+            border: 1px dashed var(--color-white-5);
+            border-radius: var(--border-radius);
+        }
+
+        .empty-icon {
+            margin-bottom: 24px;
+            opacity: 0.5;
+            color: var(--color-purple-light);
+        }
+
+        .empty-icon svg {
+            width: 64px;
+            height: 64px;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--color-white);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: var(--color-white-75);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* Edit Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--color-dark-card);
+            border: 1px solid var(--color-white-5);
+            border-radius: var(--border-radius);
+            padding: 32px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--color-white);
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            background: var(--color-white-5);
+            border: none;
+            border-radius: 50%;
+            color: var(--color-white);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .modal-close:hover {
+            background: var(--color-danger);
+        }
+
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        /* Toast Notification */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            background: var(--color-dark-card);
+            border: 1px solid var(--color-white-5);
+            border-radius: var(--border-radius-sm);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            animation: toastSlideIn 0.3s ease;
+            min-width: 280px;
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .toast.success {
+            border-left: 3px solid var(--color-success);
+        }
+
+        .toast.error {
+            border-left: 3px solid var(--color-danger);
+        }
+
+        .toast-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .toast-icon.success {
+            background: var(--color-success);
+            color: white;
+        }
+
+        .toast-icon.error {
+            background: var(--color-danger);
+            color: white;
+        }
+
+        .toast-message {
+            flex: 1;
+            font-size: 14px;
+            color: var(--color-white);
+        }
+
+        /* Footer */
+        footer {
+            padding: 24px 0;
+            border-top: 1px solid var(--color-white-5);
+            text-align: center;
+        }
+
+        footer p {
+            font-size: 14px;
+            color: var(--color-white-75);
+        }
+
+        footer a {
+            color: var(--color-purple-light);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 809px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-actions {
+                justify-content: center;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .notes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .form-options {
+                flex-direction: column;
+                align-items: flex-start;
+                width: 100%;
+            }
+
+            .btn-primary {
+                width: 100%;
+            }
+
+            .modal {
+                padding: 24px;
+            }
+
+            .toast-container {
+                left: 24px;
+                right: 24px;
+            }
+
+            .toast {
+                min-width: auto;
+            }
+
+            .notes-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .controls-left,
+            .controls-right {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .stats-bar {
+                justify-content: center;
+                text-align: center;
+            }
+
+            .stat-item {
+                min-width: 80px;
+            }
+        }
+
+        @media (min-width: 810px) and (max-width: 1199px) {
+            .notes-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--color-black);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-dark-card);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--color-purple-primary);
+        }
+
+        /* Selection */
+        ::selection {
+            background: var(--color-purple-primary);
+            color: var(--color-white);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-logo">
+            <div class="preloader-logo-icon">📝</div>
+            <span class="preloader-logo-text">NotesHub</span>
+        </div>
+        <div class="preloader-circles">
+            <div class="preloader-circle preloader-circle-1"></div>
+            <div class="preloader-circle preloader-circle-2"></div>
+            <div class="preloader-circle preloader-circle-3"></div>
+            <div class="preloader-glow"></div>
+        </div>
+        <div class="preloader-text">
+            Loading<span class="preloader-dots">
+                <span class="preloader-dot"></span>
+                <span class="preloader-dot"></span>
+                <span class="preloader-dot"></span>
+            </span>
+        </div>
+        <div class="preloader-progress">
+            <div class="preloader-progress-bar"></div>
+        </div>
+    </div>
+
+    <!-- Background Container - Same as Xtract template -->
+    <div class="bg-container">
+        <!-- Particles Animation -->
+        <div id="tsparticles"></div>
+        
+        <!-- Animated Gradient Circles -->
+        <div class="bg-circles">
+            <div class="big-circle"></div>
+            <div class="small-circle"></div>
+            <div class="void-circle"></div>
+        </div>
+    </div>
+
+    <!-- Page Content Wrapper -->
+    <div class="page-content">
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">
+                    <div class="logo-icon">📝</div>
+                    <span class="logo-text">NotesHub</span>
+                </a>
+                <div class="header-actions">
+                    <div class="notes-count">
+                        Total Notes: <span id="totalNotes">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="hero-badge">
+                    <span>—</span>
+                    <span>Smart Notes Management</span>
+                    <span>—</span>
+                </div>
+                <h1>Capture Your Ideas,<br>Organize Your Thoughts</h1>
+                <p>Create, edit, and manage your notes with a beautiful, intuitive interface. Your notes are stored locally and persist across sessions.</p>
+            </section>
+
+            <!-- Note Input Section -->
+            <section class="note-input-section">
+                <div class="input-header">
+                    <h2>Create a New Note</h2>
+                </div>
+                <form class="note-form" id="noteForm">
+                    <div class="input-group">
+                        <input 
+                            type="text" 
+                            class="note-title-input" 
+                            id="noteTitle" 
+                            placeholder="Enter note title..."
+                            maxlength="100"
+                        >
+                    </div>
+                    <div class="input-group">
+                        <textarea 
+                            class="note-textarea" 
+                            id="noteContent" 
+                            placeholder="Write your note here..."
+                            maxlength="2000"
+                        ></textarea>
+                    </div>
+                    <div class="error-message" id="errorMessage">
+                        <span class="error-icon">!</span>
+                        <span id="errorText">Please enter some content for your note.</span>
+                    </div>
+                    <div class="form-actions">
+                        <div class="form-options">
+                            <span class="char-count">
+                                <span id="charCount">0</span> / 2000 characters
+                            </span>
+                            <div class="color-picker">
+                                <label>Color:</label>
+                                <div class="color-options" id="colorOptions">
+                                    <div class="color-option selected" data-color="purple" title="Purple"></div>
+                                    <div class="color-option" data-color="blue" title="Blue"></div>
+                                    <div class="color-option" data-color="green" title="Green"></div>
+                                    <div class="color-option" data-color="orange" title="Orange"></div>
+                                    <div class="color-option" data-color="pink" title="Pink"></div>
+                                    <div class="color-option" data-color="teal" title="Teal"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            Add Note
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Notes Section -->
+            <section class="notes-section">
+                <div class="section-header">
+                    <h2>Your Notes</h2>
+                    <div class="search-box">
+                        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            placeholder="Search notes..."
+                        >
+                    </div>
+                </div>
+
+                <!-- Stats Bar -->
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Notes</span>
+                        <span class="stat-value highlight" id="statTotal">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Pinned</span>
+                        <span class="stat-value" id="statPinned">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Words</span>
+                        <span class="stat-value" id="statWords">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Characters</span>
+                        <span class="stat-value" id="statChars">0</span>
+                    </div>
+                </div>
+
+                <!-- Notes Controls -->
+                <div class="notes-controls">
+                    <div class="controls-left">
+                        <div class="sort-dropdown">
+                            <select class="sort-select" id="sortSelect">
+                                <option value="newest">Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                                <option value="title-az">Title A-Z</option>
+                                <option value="title-za">Title Z-A</option>
+                                <option value="updated">Recently Updated</option>
+                            </select>
+                        </div>
+                        <button class="filter-btn" id="filterAll" data-filter="all">
+                            All Notes
+                        </button>
+                        <button class="filter-btn" id="filterPinned" data-filter="pinned">
+                            Pinned
+                        </button>
+                    </div>
+                    <div class="controls-right">
+                        <button class="export-btn" id="exportBtn">
+                            Export Notes
+                        </button>
+                    </div>
+                </div>
+
+                <div class="notes-grid" id="notesGrid">
+                    <!-- Notes will be dynamically inserted here -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Edit Modal -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Edit Note</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editNoteId">
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        class="note-title-input" 
+                        id="editNoteTitle" 
+                        placeholder="Enter note title..."
+                        maxlength="100"
+                    >
+                </div>
+                <div class="input-group">
+                    <textarea 
+                        class="note-textarea" 
+                        id="editNoteContent" 
+                        placeholder="Write your note here..."
+                        maxlength="2000"
+                    ></textarea>
+                </div>
+                <!-- Color Picker in Modal -->
+                <div class="color-picker">
+                    <label>Note Color:</label>
+                    <div class="color-options" id="editColorOptions">
+                        <div class="color-option selected" data-color="purple" title="Purple"></div>
+                        <div class="color-option" data-color="blue" title="Blue"></div>
+                        <div class="color-option" data-color="green" title="Green"></div>
+                        <div class="color-option" data-color="orange" title="Orange"></div>
+                        <div class="color-option" data-color="pink" title="Pink"></div>
+                        <div class="color-option" data-color="teal" title="Teal"></div>
+                    </div>
+                </div>
+                <div class="error-message" id="editErrorMessage">
+                    <span class="error-icon">!</span>
+                    <span>Please enter some content for your note.</span>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="cancelEdit">Cancel</button>
+                    <button class="btn btn-primary" id="saveEdit">
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>Built by DivyanshXOR | NotesHub &copy; 2026</p>
+        </div>
+    </footer>
+
+    </div> <!-- End of page-content -->
+
+    <script>
+        // DOM Elements
+        const noteForm = document.getElementById('noteForm');
+        const noteTitle = document.getElementById('noteTitle');
+        const noteContent = document.getElementById('noteContent');
+        const notesGrid = document.getElementById('notesGrid');
+        const searchInput = document.getElementById('searchInput');
+        const totalNotesEl = document.getElementById('totalNotes');
+        const charCount = document.getElementById('charCount');
+        const errorMessage = document.getElementById('errorMessage');
+        const editModal = document.getElementById('editModal');
+        const editNoteId = document.getElementById('editNoteId');
+        const editNoteTitle = document.getElementById('editNoteTitle');
+        const editNoteContent = document.getElementById('editNoteContent');
+        const editErrorMessage = document.getElementById('editErrorMessage');
+        const modalClose = document.getElementById('modalClose');
+        const cancelEdit = document.getElementById('cancelEdit');
+        const saveEdit = document.getElementById('saveEdit');
+        const toastContainer = document.getElementById('toastContainer');
+        const sortSelect = document.getElementById('sortSelect');
+        const exportBtn = document.getElementById('exportBtn');
+        const colorOptions = document.getElementById('colorOptions');
+        const editColorOptions = document.getElementById('editColorOptions');
+        const filterAll = document.getElementById('filterAll');
+        const filterPinned = document.getElementById('filterPinned');
+
+        // Stats Elements
+        const statTotal = document.getElementById('statTotal');
+        const statPinned = document.getElementById('statPinned');
+        const statWords = document.getElementById('statWords');
+        const statChars = document.getElementById('statChars');
+
+        // Notes Array
+        let notes = [];
+        let selectedColor = 'purple';
+        let editSelectedColor = 'purple';
+        let currentFilter = 'all';
+        let currentSort = 'newest';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadNotes();
+            renderNotes();
+            setupColorPickers();
+            setupFilters();
+            updateStats();
+        });
+
+        // Load Notes from LocalStorage
+        function loadNotes() {
+            const storedNotes = localStorage.getItem('noteshub_notes');
+            if (storedNotes) {
+                notes = JSON.parse(storedNotes);
+            }
+        }
+
+        // Save Notes to LocalStorage
+        function saveNotes() {
+            localStorage.setItem('noteshub_notes', JSON.stringify(notes));
+        }
+
+        // Generate Unique ID
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // Format Date
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            const options = { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        // Show Toast Notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <span class="toast-icon ${type}">${type === 'success' ? '✓' : '✕'}</span>
+                <span class="toast-message">${message}</span>
+            `;
+            toastContainer.appendChild(toast);
+
+            // Remove toast after 3 seconds
+            setTimeout(() => {
+                toast.style.animation = 'toastSlideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Render Notes
+        function renderNotes(searchTerm = '') {
+            let filteredNotes = notes.filter(note => {
+                const searchLower = searchTerm.toLowerCase();
+                const matchesSearch = note.title.toLowerCase().includes(searchLower) || 
+                       note.content.toLowerCase().includes(searchLower);
+                
+                // Apply filter
+                if (currentFilter === 'pinned') {
+                    return matchesSearch && note.pinned;
+                }
+                return matchesSearch;
+            });
+
+            // Apply sorting
+            filteredNotes = sortNotes(filteredNotes);
+
+            // Update total count
+            totalNotesEl.textContent = notes.length;
+            updateStats();
+
+            // Check if empty
+            if (filteredNotes.length === 0) {
+                if (searchTerm) {
+                    notesGrid.innerHTML = `
+                        <div class="empty-state" style="grid-column: 1 / -1;">
+                            <div class="empty-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <circle cx="11" cy="11" r="8"/>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                </svg>
+                            </div>
+                            <h3>No Notes Found</h3>
+                            <p>No notes match your search term "${escapeHtml(searchTerm)}". Try a different search.</p>
+                        </div>
+                    `;
+                } else if (currentFilter === 'pinned') {
+                    notesGrid.innerHTML = `
+                        <div class="empty-state" style="grid-column: 1 / -1;">
+                            <div class="empty-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M12 2L12 12M12 12L17 7M12 12L7 17M12 22V12"/>
+                                    <circle cx="12" cy="5" r="2"/>
+                                </svg>
+                            </div>
+                            <h3>No Pinned Notes</h3>
+                            <p>Pin important notes to keep them at the top of your list.</p>
+                        </div>
+                    `;
+                } else {
+                    notesGrid.innerHTML = `
+                        <div class="empty-state" style="grid-column: 1 / -1;">
+                            <div class="empty-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                </svg>
+                            </div>
+                            <h3>No Notes Yet</h3>
+                            <p>Start capturing your ideas! Create your first note using the form above.</p>
+                        </div>
+                    `;
+                }
+                return;
+            }
+
+            // Helper function to count words
+            function countWords(text) {
+                return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+            }
+
+            // Render notes
+            notesGrid.innerHTML = filteredNotes
+                .map(note => `
+                    <div class="note-card ${note.pinned ? 'pinned' : ''}" data-id="${note.id}" data-color="${note.color || 'purple'}">
+                        <div class="note-card-header">
+                            <h3 class="note-title">${escapeHtml(note.title) || 'Untitled Note'}</h3>
+                            <div class="note-meta">
+                                <span class="note-date">${formatDate(note.updatedAt)}</span>
+                                <span class="note-word-count">${countWords(note.content)} words</span>
+                            </div>
+                        </div>
+                        <p class="note-content">${escapeHtml(note.content)}</p>
+                        <div class="note-actions">
+                            <button class="pin-btn ${note.pinned ? 'pinned' : ''}" data-id="${note.id}" title="${note.pinned ? 'Unpin' : 'Pin'}">
+                                ${note.pinned ? 'Unpin' : 'Pin'}
+                            </button>
+                            <button class="btn btn-secondary btn-sm edit-btn" data-id="${note.id}">
+                                Edit
+                            </button>
+                            <button class="btn btn-danger btn-sm delete-btn" data-id="${note.id}">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+            // Add event listeners
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', () => openEditModal(btn.dataset.id));
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', () => deleteNote(btn.dataset.id));
+            });
+
+            document.querySelectorAll('.pin-btn').forEach(btn => {
+                btn.addEventListener('click', () => togglePin(btn.dataset.id));
+            });
+        }
+
+        // Sort Notes
+        function sortNotes(notesArray) {
+            // Always put pinned notes first
+            const pinned = notesArray.filter(n => n.pinned);
+            const unpinned = notesArray.filter(n => !n.pinned);
+
+            const sortFn = (a, b) => {
+                switch (currentSort) {
+                    case 'oldest':
+                        return a.createdAt - b.createdAt;
+                    case 'title-az':
+                        return a.title.localeCompare(b.title);
+                    case 'title-za':
+                        return b.title.localeCompare(a.title);
+                    case 'updated':
+                        return b.updatedAt - a.updatedAt;
+                    case 'newest':
+                    default:
+                        return b.createdAt - a.createdAt;
+                }
+            };
+
+            return [...pinned.sort(sortFn), ...unpinned.sort(sortFn)];
+        }
+
+        // Toggle Pin
+        function togglePin(id) {
+            const noteIndex = notes.findIndex(n => n.id === id);
+            if (noteIndex !== -1) {
+                notes[noteIndex].pinned = !notes[noteIndex].pinned;
+                saveNotes();
+                renderNotes(searchInput.value);
+                showToast(notes[noteIndex].pinned ? 'Note pinned!' : 'Note unpinned!');
+            }
+        }
+
+        // Update Statistics
+        function updateStats() {
+            const totalNotes = notes.length;
+            const pinnedNotes = notes.filter(n => n.pinned).length;
+            const totalWords = notes.reduce((acc, note) => {
+                return acc + note.content.trim().split(/\s+/).filter(w => w.length > 0).length;
+            }, 0);
+            const totalChars = notes.reduce((acc, note) => acc + note.content.length, 0);
+
+            statTotal.textContent = totalNotes;
+            statPinned.textContent = pinnedNotes;
+            statWords.textContent = totalWords.toLocaleString();
+            statChars.textContent = totalChars.toLocaleString();
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Setup Color Pickers
+        function setupColorPickers() {
+            // Create form color picker
+            colorOptions.querySelectorAll('.color-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    colorOptions.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+                    option.classList.add('selected');
+                    selectedColor = option.dataset.color;
+                });
+            });
+
+            // Edit modal color picker
+            editColorOptions.querySelectorAll('.color-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    editColorOptions.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+                    option.classList.add('selected');
+                    editSelectedColor = option.dataset.color;
+                });
+            });
+        }
+
+        // Setup Filters
+        function setupFilters() {
+            filterAll.addEventListener('click', () => {
+                currentFilter = 'all';
+                filterAll.classList.add('active');
+                filterPinned.classList.remove('active');
+                renderNotes(searchInput.value);
+            });
+
+            filterPinned.addEventListener('click', () => {
+                currentFilter = 'pinned';
+                filterPinned.classList.add('active');
+                filterAll.classList.remove('active');
+                renderNotes(searchInput.value);
+            });
+
+            // Initialize active state
+            filterAll.classList.add('active');
+
+            // Sort select
+            sortSelect.addEventListener('change', () => {
+                currentSort = sortSelect.value;
+                renderNotes(searchInput.value);
+            });
+        }
+
+        // Export Notes
+        exportBtn.addEventListener('click', () => {
+            if (notes.length === 0) {
+                showToast('No notes to export!', 'error');
+                return;
+            }
+
+            const exportData = {
+                exportedAt: new Date().toISOString(),
+                totalNotes: notes.length,
+                notes: notes.map(note => ({
+                    title: note.title,
+                    content: note.content,
+                    color: note.color || 'purple',
+                    pinned: note.pinned || false,
+                    createdAt: new Date(note.createdAt).toISOString(),
+                    updatedAt: new Date(note.updatedAt).toISOString()
+                }))
+            };
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `noteshub-export-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast('Notes exported successfully!');
+        });
+
+        // Add Note
+        noteForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const title = noteTitle.value.trim();
+            const content = noteContent.value.trim();
+
+            // Validation
+            if (!content) {
+                errorMessage.classList.add('show');
+                noteContent.focus();
+                return;
+            }
+
+            errorMessage.classList.remove('show');
+
+            // Create note object
+            const note = {
+                id: generateId(),
+                title: title || 'Untitled Note',
+                content: content,
+                color: selectedColor,
+                pinned: false,
+                createdAt: Date.now(),
+                updatedAt: Date.now()
+            };
+
+            // Add to array
+            notes.unshift(note);
+            saveNotes();
+            renderNotes(searchInput.value);
+
+            // Reset form
+            noteTitle.value = '';
+            noteContent.value = '';
+            charCount.textContent = '0';
+            
+            // Reset color picker
+            colorOptions.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+            colorOptions.querySelector('[data-color="purple"]').classList.add('selected');
+            selectedColor = 'purple';
+
+            showToast('Note created successfully!');
+        });
+
+        // Update character count
+        noteContent.addEventListener('input', () => {
+            charCount.textContent = noteContent.value.length;
+            if (noteContent.value.trim()) {
+                errorMessage.classList.remove('show');
+            }
+        });
+
+        // Search functionality
+        searchInput.addEventListener('input', () => {
+            renderNotes(searchInput.value.trim());
+        });
+
+        // Delete Note
+        function deleteNote(id) {
+            if (confirm('Are you sure you want to delete this note? This action cannot be undone.')) {
+                notes = notes.filter(note => note.id !== id);
+                saveNotes();
+                renderNotes(searchInput.value);
+                showToast('Note deleted successfully!');
+            }
+        }
+
+        // Open Edit Modal
+        function openEditModal(id) {
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+
+            editNoteId.value = id;
+            editNoteTitle.value = note.title === 'Untitled Note' ? '' : note.title;
+            editNoteContent.value = note.content;
+            editSelectedColor = note.color || 'purple';
+            
+            // Set color picker
+            editColorOptions.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+            editColorOptions.querySelector(`[data-color="${editSelectedColor}"]`).classList.add('selected');
+            
+            editErrorMessage.classList.remove('show');
+            editModal.classList.add('show');
+            editNoteTitle.focus();
+        }
+
+        // Close Edit Modal
+        function closeEditModal() {
+            editModal.classList.remove('show');
+            editNoteId.value = '';
+            editNoteTitle.value = '';
+            editNoteContent.value = '';
+            editSelectedColor = 'purple';
+        }
+
+        modalClose.addEventListener('click', closeEditModal);
+        cancelEdit.addEventListener('click', closeEditModal);
+
+        // Close modal on overlay click
+        editModal.addEventListener('click', (e) => {
+            if (e.target === editModal) {
+                closeEditModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && editModal.classList.contains('show')) {
+                closeEditModal();
+            }
+        });
+
+        // Save Edit
+        saveEdit.addEventListener('click', () => {
+            const id = editNoteId.value;
+            const title = editNoteTitle.value.trim();
+            const content = editNoteContent.value.trim();
+
+            // Validation
+            if (!content) {
+                editErrorMessage.classList.add('show');
+                editNoteContent.focus();
+                return;
+            }
+
+            // Find and update note
+            const noteIndex = notes.findIndex(n => n.id === id);
+            if (noteIndex !== -1) {
+                notes[noteIndex].title = title || 'Untitled Note';
+                notes[noteIndex].content = content;
+                notes[noteIndex].color = editSelectedColor;
+                notes[noteIndex].updatedAt = Date.now();
+                saveNotes();
+                renderNotes(searchInput.value);
+                closeEditModal();
+                showToast('Note updated successfully!');
+            }
+        });
+
+        // Remove error message when typing in edit modal
+        editNoteContent.addEventListener('input', () => {
+            if (editNoteContent.value.trim()) {
+                editErrorMessage.classList.remove('show');
+            }
+        });
+
+        // Initialize Particles.js - Same as Xtract template
+        tsParticles.load("tsparticles", {
+            fullScreen: {
+                enable: false
+            },
+            background: {
+                color: {
+                    value: "transparent"
+                }
+            },
+            fpsLimit: 60,
+            interactivity: {
+                events: {
+                    onHover: {
+                        enable: true,
+                        mode: "grab"
+                    },
+                    resize: true
+                },
+                modes: {
+                    grab: {
+                        distance: 140,
+                        links: {
+                            opacity: 0.5
+                        }
+                    }
+                }
+            },
+            particles: {
+                color: {
+                    value: "#ffffff"
+                },
+                links: {
+                    color: "#ffffff",
+                    distance: 150,
+                    enable: true,
+                    opacity: 0.15,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    outModes: {
+                        default: "bounce"
+                    },
+                    random: false,
+                    speed: 1,
+                    straight: false
+                },
+                number: {
+                    density: {
+                        enable: true,
+                        area: 800
+                    },
+                    value: 80
+                },
+                opacity: {
+                    value: 0.3
+                },
+                shape: {
+                    type: "circle"
+                },
+                size: {
+                    value: { min: 1, max: 3 }
+                }
+            },
+            detectRetina: true
+        });
+
+        // Hide preloader after animation completes
+        window.addEventListener('load', () => {
+            const preloader = document.getElementById('preloader');
+            setTimeout(() => {
+                preloader.classList.add('hidden');
+            }, 2200); // Match the progress bar animation duration
+        });
+    </script>
+</body>
+
+</html>
